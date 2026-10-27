@@ -180,8 +180,10 @@ The protocol keeps the benchmark able to say that Verdict is the wrong design.
 
 **Direction check.** S4, then every versioned run, compares Verdict cold with all competitor arms. The
 **redesign trigger**, fixed before S4 runs: the best competitor's comprehension score exceeds Verdict's by
-more than 10 percentage points, or Verdict's false-success rate is higher than any competitor's. When it
-fires, tuning stops. The items where the competitor wins are read side by side, the feature that explains
+more than 10 percentage points, or Verdict's false-success rate is higher than any competitor's. A false-success
+firing on one sample can rest on a single stray answer, so it is first confirmed by rerunning those answers
+three times; the report names them. The rule itself is not relaxed: a false success is the costliest
+misreading. When it fires, tuning stops. The items where the competitor wins are read side by side, the feature that explains
 the gap is named, and either it is adopted as a round or a redesign is proposed to the maintainers. On the
 twenty zoo items the check is directional only. From S7 on it is evaluated on the tuning set of the mutation
 corpus.
