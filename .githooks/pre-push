@@ -1,18 +1,23 @@
 #!/bin/sh
-# Checks every commit about to be pushed that the remote does not have yet, then the whole tree.
+# Checks every commit about to be pushed that the remote does not have yet: paths, added lines and
+# messages. Refuses git notes outright. Then checks the whole tree.
 root="$(git rev-parse --show-toplevel)"
 z=0000000000000000000000000000000000000000
+tmp="$(mktemp)"; trap 'rm -f "$tmp"' EXIT
 while read -r lref lsha rref rsha; do
+  case "$rref" in refs/notes/*) echo "refused: git notes are never pushed ($rref)" >&2; exit 1 ;; esac
   [ "$lsha" = "$z" ] && continue
   for c in $(git rev-list "$lsha" --not --remotes); do
     if git diff-tree --root --no-commit-id --name-only -r "$c" \
          | grep -E '(^|/)(CLAUDE(\.local)?\.md$|\.claude/|\.codex/|\.gemini/|private/|transcripts/|conversations/)'; then
       echo "refused: commit $c touches a private path" >&2; exit 1
     fi
-    if git show --format= "$c" -- . ':(exclude).githooks/check-private.sh' ':(exclude).githooks/pre-push' \
+    if git show --format= "$c" -- . ':(exclude).githooks/*' ':(exclude).github/workflows/private-check.yml' \
          | grep -n -E '^\+.*(/Users/[A-Za-z]|/home/[a-z]|~/Code/)|^\+session: '; then
       echo "refused: commit $c adds a private marker" >&2; exit 1
     fi
+    git log -1 --format=%B "$c" > "$tmp"
+    "$root/.githooks/check-private.sh" --message "$tmp" || { echo "refused: commit $c message" >&2; exit 1; }
   done
 done
 exec "$root/.githooks/check-private.sh" --all

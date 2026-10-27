@@ -8,7 +8,14 @@ case "$mode" in
   --staged) files=$(git diff --cached --name-only --diff-filter=ACMR) ;;
   --all)    files=$(git ls-files) ;;
   --range)  files=$(git diff --name-only --diff-filter=ACMR "$2") ;;
-  *) echo "usage: $0 [--staged|--all|--range <a>..<b>]" >&2; exit 2 ;;
+  --message)
+    # A commit message: no private markers, no AI attribution.
+    msg_pattern='(/Users/[A-Za-z]|/home/[a-z]|~/Code/|^session: |Co-Authored-By:.*(Claude|Anthropic|noreply@anthropic|Copilot|OpenAI|Gemini)|Generated with .*(Claude|Copilot|Codex|Gemini))'
+    if hits=$(grep -n -i -E "$msg_pattern" "$2"); then
+      echo "refused commit message:" >&2; echo "$hits" >&2; exit 1
+    fi
+    exit 0 ;;
+  *) echo "usage: $0 [--staged|--all|--range <a>..<b>|--message <file>]" >&2; exit 2 ;;
 esac
 bad=0
 # 1. Forbidden paths: agent configuration, instructions, conversations, private notes

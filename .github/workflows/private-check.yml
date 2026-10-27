@@ -1,0 +1,35 @@
+name: private-check
+# Second line of defence: the local hooks are the gate; this catches anything that skipped them,
+# fast enough to rewrite the commit before it spreads.
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Tree has no private paths or markers
+        run: sh .githooks/check-private.sh --all
+      - name: Pushed commits have clean messages and no private paths
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            commits=$(git rev-list "$AFTER")
+          else
+            commits=$(git rev-list "$BEFORE..$AFTER")
+          fi
+          for c in $commits; do
+            git log -1 --format=%B "$c" > msg.txt
+            sh .githooks/check-private.sh --message msg.txt
+            if git diff-tree --root --no-commit-id --name-only -r "$c" \
+                 | grep -E '(^|/)(CLAUDE(\.local)?\.md$|\.claude/|\.codex/|\.gemini/|private/|transcripts/|conversations/)'; then
+              echo "commit $c touches a private path"; exit 1
+            fi
+          done

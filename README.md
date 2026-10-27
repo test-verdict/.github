@@ -13,12 +13,13 @@ Nothing is released yet. The format marker `verdict/1` and the package coordinat
 ## What is never published
 
 Agent instructions and configuration (`CLAUDE.md`, `.claude/`, `.codex/`, `.gemini/`), conversation
-transcripts, and anything under `private/` are git-ignored, and the hooks in `.githooks/` refuse them and
-any local home path on commit and on push. After cloning, enable the hooks once:
+transcripts, git notes, and anything under `private/` stay out of this repository. Private material for the
+family lives in a separate private repository, never here. The hooks in `.githooks/` refuse private paths,
+local home paths and AI attribution on commit, check every commit's paths, lines and message on push, and
+refuse to push git notes. A CI job runs the same checks as a second line. After cloning, run once:
 
 ```
-git config core.hooksPath .githooks
+./setup.sh
 ```
 
 Before any publication, run `.githooks/check-private.sh --all`.
-
