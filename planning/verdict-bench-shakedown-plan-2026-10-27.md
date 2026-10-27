@@ -13,7 +13,7 @@ decisions taken today:
 | Step | State | Notes |
 |---|---|---|
 | S0, repository and lanes | **Claude lane done**; Codex and Gemini lanes wait for their logins | Claude: hello and tool bait pass on Haiku 4.5, Haiku 5.5 and Sonnet 5.5 with every tool disabled; a short custom system prompt keeps a call at 525 to 641 input tokens (6,800 with the agent's default prompt). Codex cannot run tool-free: its read-only sandbox still executes shell commands, so tool calls are detected from its event stream and recorded as violations; its fixed overhead is about 15,000 input tokens per call and it does not report the answering model. First signal for the abstention question: asked to list files without tools, Haiku 4.5 answered with an empty list; the newer models said they could not. |
-| S1, Python failure zoo and capture | in progress | specification in `verdict-bench/docs/s1-python-zoo.md` |
+| S1, Python failure zoo and capture | **done** | Twenty pytest scenarios captured under five arms (default, tuned, receptor, markdown, ctrf); every exit check is an automated test, and a recapture is byte-identical to the committed capture. Findings about competitors: the CTRF reporter drops collection errors; receptor lists three tests per group, then `+N more`. Specification and implementation notes in `verdict-bench/docs/s1-python-zoo.md`. Next: S2, reference renderer and the static layer. |
 
 ## 1. Why lesser models, and the three guards that keep it honest
 
