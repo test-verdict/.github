@@ -7,7 +7,7 @@ project family: one specification, one console grammar, and one repository per t
 
 ## 0. Summary
 
-**The library you remembered is `pytest-markdown-report`** (David Allouche, PyPI 0.2.0, July 2026): a
+**The closest existing library is `pytest-markdown-report`** (David Allouche, PyPI 0.2.0, July 2026): a
 pytest plugin that replaces the console reporter with markdown, "token-efficient markdown test reports
 for LLM-based TDD agents". It is small and sound but shallow. **A stronger Python sibling exists,
 `pytest-receptor`** (1.2.2, October 2026), whose contribution is not the syntax but the *rules*: group
@@ -42,7 +42,7 @@ not re-running.
 
 | Project | Version, date | What it does | Output | Verdict |
 |---|---|---|---|---|
-| `pytest-markdown-report` (ddaanet) | 0.2.0, 2026-07-15 | Replaces pytest's TerminalReporter with a markdown renderer. Default: summary line plus errors and failures with full traceback and assertion introspection in a fenced block; `-v` adds a passes list; `-q` prints the summary and a rerun command only; `-r` flags select sections; `--markdown-report=FILE` also writes a file. | Markdown: `# Test Report`, `**Summary:** 2/7 passed, 3 failed, 1 error, 1 skipped`, `## Failures`, `### test_validation.py::test_invalid_input[empty] FAILED`, fenced traceback | The one you remembered. Honest and minimal. No grouping, no delta, no truncation awareness, no injection hardening, claims "~40% fewer tokens than verbose markdown" without a published method. Unregisters pytest's reporter, which breaks plugins that look it up (the receptor's author hit exactly this). |
+| `pytest-markdown-report` (ddaanet) | 0.2.0, 2026-07-15 | Replaces pytest's TerminalReporter with a markdown renderer. Default: summary line plus errors and failures with full traceback and assertion introspection in a fenced block; `-v` adds a passes list; `-q` prints the summary and a rerun command only; `-r` flags select sections; `--markdown-report=FILE` also writes a file. | Markdown: `# Test Report`, `**Summary:** 2/7 passed, 3 failed, 1 error, 1 skipped`, `## Failures`, `### test_validation.py::test_invalid_input[empty] FAILED`, fenced traceback | Honest and minimal. No grouping, no delta, no truncation awareness, no injection hardening, claims "~40% fewer tokens than verbose markdown" without a published method. Unregisters pytest's reporter, which breaks plugins that look it up (the receptor's author hit exactly this). |
 | `pytest-receptor` (uibcdf) | 1.2.2, 2026-10 | Opt-in `--receptor=llm` or `ci`. Verdict line with exit code and completeness; failures grouped by exception type, phase, crash location and cause chain; three occurrences named and the rest counted; rerun command per group; skip, warning and xfail reasons grouped; local frames kept, external frames pruned to entry and breaking frame; ANSI and control characters stripped, credential-shaped values redacted; progress to stderr once per 20%; full report to `.pytest_cache/d/receptor/last-run.txt`; byte-identical under xdist; `RECEPTOR_ERROR` degrade path; optional versioned JSONL event file; `--receptor-stats` measures tokens against your own configuration. | Plain text: `FAIL exit=1 \| 38 errors, 90 passed \| 12.40s \| 1 root cause`, then `[1] TypeError \| 38 tests \| setup`, location, message, test list, `rerun:` | The best-designed reporter in any language. Measured with tiktoken: a 38-failure cascade costs 105 tokens against 3,283 for plain pytest; a green 8,000-test suite 17 tokens against 812 for `pytest -q`. Its format is its own, not a cross-language one. |
 | `pytest-md-report`, `pytest-github-report` | older | Markdown *tables* of outcomes for PR comments | Markdown table | Human and CI oriented, not agent oriented. |
 | `faultline` | 2026 | Not a reporter: Claude Code hooks and an MCP server that, after a pytest failure, inject the deepest user-code frame, rerun the one failing test under a tracer and report runtime values of the failing versus a passing run. | JSON | One A/B on one real bug, 21 sessions a side: 29% fewer tokens per fixed bug, from fewer turns. The signal that matters is *runtime values along the failing path*, which is exactly what a narrative trace is. |
@@ -520,7 +520,7 @@ Effort: pytest M (or S if contributed upstream), unittest S.
 
 Effort: wrapper M (event stream), XCTest observer S, xcresult adapter S.
 
-### 6.7 Go and Rust (out of the asked scope, recorded for later)
+### 6.7 Go and Rust (outside the current scope, recorded for later)
 
 Go: `go test -json` is a complete event stream; `gotestsum` is the wrapper precedent; a `go test
 -json | verdict-go` filter is S. Rust: libtest's `--format json` is unstable; `cargo nextest`
