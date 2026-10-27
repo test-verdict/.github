@@ -32,7 +32,7 @@ competitors' output from their real plugins). A reference renderer turns that ev
 text. So the format can be measured, ablated and redesigned in Python on day one, and the per-framework
 implementations later only have to match the golden reports.
 
-**My take on your framing.** Comprehension first is right, and it is more measurable than it sounds: most
+**Assessment.** Putting comprehension first is right, and it is more measurable than it sounds: most
 of "did the agent understand" reduces to questions with one correct answer that a script can check, and the
 most important single number is the **false-success rate**, how often the agent believes or says the run is
 fine when it is not. Economy then comes almost free, because L0 counts tokens deterministically and L2
