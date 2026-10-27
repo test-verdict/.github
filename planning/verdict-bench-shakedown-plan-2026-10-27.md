@@ -39,7 +39,7 @@ guessed. Planning figures until then:
 
 | Run | Items | Arms | Models | Samples | Calls |
 |---|---|---|---|---|---|
-| Shakedown, comprehension | 30 | 4 | 1 | 1 | 120 |
+| Shakedown, comprehension | 20 | 6 | 1 | 1 | 120 |
 | Calibration | 30 | 2 | up to 6 | 1 | 360 |
 | First versioned comprehension run | 150 | 6 | 3 | 3 | 8,100 |
 | Do-no-harm sample | 40 | 6 | 1 | 1 | 240 |
@@ -129,8 +129,9 @@ Each step ends with a check that can fail. A step that fails its check is fixed 
   against the schema; failures to parse recorded as a separate outcome, never dropped.
 - Measure per lane: allowance cost per call as far as the CLI reports it, system-prompt overhead, latency,
   parse rate, rate-limit behaviour, and run-to-run variance on repeated identical calls.
-- Run the 120-call shakedown: 30 tuning items, four arms (default, hand-tuned, pytest-receptor, Verdict
-  cold), one model.
+- Run the 120-call shakedown: the twenty zoo items, all six arms (default, hand-tuned, pytest-receptor,
+  pytest-markdown-report, CTRF JSON, Verdict cold), one model. This is also the first direction check of
+  section 4: the redesign trigger is evaluated on it and the result recorded.
 - **Exit:** parse rate at least 98%; no item lost silently; every row has model id, CLI version, arm,
   item hash and truncation condition; a reviewer can rerun any single row with one command.
 
@@ -148,9 +149,8 @@ Each step ends with a check that can fail. A step that fails its check is fixed 
   sample of 20 checked by hand for a sane cause location.
 
 ### S7 First format-tuning rounds, shakedown
-- Two or three rounds on the tuning set with the ladder: one format change per round, static layer then
-  comprehension, the change kept only if comprehension improves or holds and the false-success rate does
-  not rise.
+- Two or three rounds on the tuning set with the ladder, run by the protocol in section 4: ablations first,
+  then one addition or change per round.
 - **Exit:** a format candidate frozen for the first versioned run, with the change log of the rounds.
 
 ### S8 Agentic harness pilot
@@ -168,12 +168,50 @@ Each step ends with a check that can fail. A step that fails its check is fixed 
   set generated after the freeze and sealed.
 - **Exit:** the maintainers declare the harness correct. From here every run publishes whatever it says.
 
-## 4. Who does the work
+## 4. Format refinement protocol
+
+Decided 2026-10-27. One Verdict design is refined by small paired A/B rounds. A different design is tried only
+when the evidence calls for it. The protection against our own assumptions (for example, that a
+Markdown-shaped report reads best) is the set of competitor arms, which are genuinely different designs:
+plain text (receptor), Markdown-heavy (markdown-report), JSON (CTRF) and trimmed framework output (tuned).
+The protocol keeps the benchmark able to say that Verdict is the wrong design.
+
+**Direction check.** S4, then every versioned run, compares Verdict cold with all competitor arms. The
+**redesign trigger**, fixed before S4 runs: the best competitor's comprehension score exceeds Verdict's by
+more than 10 percentage points, or Verdict's false-success rate is higher than any competitor's. When it
+fires, tuning stops. The items where the competitor wins are read side by side, the feature that explains
+the gap is named, and either it is adopted as a round or a redesign is proposed to the maintainers. On the
+twenty zoo items the check is directional only. From S7 on it is evaluated on the tuning set of the mutation
+corpus.
+
+**Rounds.** Each round makes one change, measured paired on the same items, models and truncation
+conditions against the current format.
+1. The static layer runs first. A change that loses fact coverage, or the survival of the verdict line or
+   index, is rejected without a model run.
+2. Comprehension on the tuning set. The change is **kept** when the comprehension score improves or holds
+   and the false-success rate does not rise. Between two outcomes that are equal within noise, the one
+   with fewer tokens wins.
+3. Every round is recorded in a change log: the change, the reason it was tried, the static and
+   comprehension deltas, and the decision.
+
+**Order of rounds.**
+1. **Ablations first.** Each existing part (grouping, index, verdict word, decisive frame, rerun line, clip
+   notice) is removed once. A part whose removal does not lower comprehension is dropped, and its tokens are
+   saved. This addresses the token cost before anything is added.
+2. **Changes chosen by errors.** The next candidate comes from where models answer wrongly (question type ×
+   scenario × arm), not from a list written in advance.
+3. **Additions last**, each as its own A/B round: delta, hint line, pattern line, a shorter output block.
+
+**What a small sample can say.** With twenty items a difference of two or three items is noise: the zoo
+detects a broken format but cannot choose between two good ones. Kept-or-dropped decisions are taken on the
+mutation corpus (S6) and later. Earlier results show direction only and are labelled so.
+
+## 5. Who does the work
 
 Steps with a written specification can be delegated; calibration, sizing and tuning need judgement on
 what the measurements mean and stay with the maintainers. Gates and long runs run in the foreground.
 
-## 5. Open questions
+## 6. Open questions
 
 1. Answered 2026-10-27: Codex on Pro, Gemini on the free tier; lanes in section 1.
 2. Answered 2026-10-27: `verdict-bench` is written from scratch.
