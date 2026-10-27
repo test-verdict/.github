@@ -184,6 +184,13 @@ the gap is named, and either it is adopted as a round or a redesign is proposed 
 twenty zoo items the check is directional only. From S7 on it is evaluated on the tuning set of the mutation
 corpus.
 
+**The zoo leans towards Verdict.** It was written alongside the format and contains the cases the format was
+built for (a setup cascade, a forged verdict line). The evidence is therefore asymmetric: a Verdict loss on
+the zoo is strong evidence against the design, while a Verdict win is a first sign only. Every direction
+check reports the comprehension score twice: with all questions, and without the questions that reward
+something only some arms print (Q7 rerun, which several arms leave to the reader). A lead that exists only
+in the full score is reported as such. The fair test is the mutation corpus, which nobody selects by hand.
+
 **Rounds.** Each round makes one change, measured paired on the same items, models and truncation
 conditions against the current format.
 1. The static layer runs first. A change that loses fact coverage, or the survival of the verdict line or
