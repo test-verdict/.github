@@ -6,6 +6,7 @@ Organisation-wide files for the Verdict project family: the profile shown on the
 - [Design record, 2026-10-27](planning/verdict-design-2026-10-27.md): survey of existing agent-oriented test reporters, the Verdict format, and the implementation plan, one repository per framework.
 - [Benchmark design, 2026-10-27](planning/verdict-benchmark-2026-10-27.md): how we measure whether agents understand the report (first) and what it saves (second).
 - [Benchmark creation and shakedown plan, 2026-10-27](planning/verdict-bench-shakedown-plan-2026-10-27.md): steps S0 to S9 with exit criteria; subscriptions only; lesser models first.
+- [Contributing](CONTRIBUTING.md): the engineering rules for every Verdict repository.
 - [Security policy](SECURITY.md)
 
 Nothing is released yet. The format marker `verdict/1` and the package coordinates named in the design record are reserved by convention until the specification repository publishes them.
