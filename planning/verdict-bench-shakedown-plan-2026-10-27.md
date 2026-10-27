@@ -234,3 +234,17 @@ what the measurements mean and stay with the maintainers. Gates and long runs ru
 5. Open 2026-10-27: whether the agentic layer (S8) should lead rather than follow the comprehension layer,
    since an agent given a task and its real tool output is the measure the format exists for; comprehension
    questions stay as the cheap diagnostic of why a format helps or fails.
+6. Open 2026-10-27, proposed: an early decision on whether the project is worth continuing, taken after S6 and
+   a small agentic pilot, before any format tuning. The zoo results do not answer it: the benchmark design
+   predicted no advantage on a single failure, and the zoo is mostly single failures. The hypothesis worth
+   testing is narrower: the format helps when failures are many, causes are several, or the agent's tool cut
+   the output. The bar is the hand-tuned arm, a one-line configuration anyone can adopt for free, and the
+   most compact competitors (receptor and markdown already use about 40% fewer tokens than Verdict on the
+   zoo).
+   - **Continue** when, on the S6 tuning items with a calibrated model, Verdict leads the best of tuned,
+     receptor and markdown by at least 5 points in the hard strata (more than 20 failing tests, several
+     causes, or a clipped presentation) with no more false successes, **or** the agentic pilot shows a higher
+     solved rate or clearly fewer tokens to a solution than tuned.
+   - **Stop building the library** when neither holds: publish the benchmark and its findings (which output
+     settings help agents, which reporters do not) as the result.
+   - Anything between is a redesign trigger under section 4, not a reason to continue unchanged.
