@@ -234,7 +234,7 @@ what the measurements mean and stay with the maintainers. Gates and long runs ru
 5. Open 2026-10-27: whether the agentic layer (S8) should lead rather than follow the comprehension layer,
    since an agent given a task and its real tool output is the measure the format exists for; comprehension
    questions stay as the cheap diagnostic of why a format helps or fails.
-6. Open 2026-10-27, proposed: an early decision on whether the project is worth continuing, taken after S6 and
+6. Decided 2026-10-27: an early decision on whether the project is worth continuing, taken after S6 and
    a small agentic pilot, before any format tuning. The zoo results do not answer it: the benchmark design
    predicted no advantage on a single failure, and the zoo is mostly single failures. The hypothesis worth
    testing is narrower: the format helps when failures are many, causes are several, or the agent's tool cut
