@@ -1,0 +1,17 @@
+.DS_Store
+
+# Never published: agent configuration, instructions and conversations
+CLAUDE.md
+CLAUDE.local.md
+**/CLAUDE.md
+**/CLAUDE.local.md
+.claude/
+**/.claude/
+.codex/
+.gemini/
+*.transcript.*
+transcripts/
+conversations/
+
+# Internal notes and anything marked private
+private/

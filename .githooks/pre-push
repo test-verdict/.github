@@ -1,0 +1,18 @@
+#!/bin/sh
+# Checks every commit about to be pushed that the remote does not have yet, then the whole tree.
+root="$(git rev-parse --show-toplevel)"
+z=0000000000000000000000000000000000000000
+while read -r lref lsha rref rsha; do
+  [ "$lsha" = "$z" ] && continue
+  for c in $(git rev-list "$lsha" --not --remotes); do
+    if git diff-tree --root --no-commit-id --name-only -r "$c" \
+         | grep -E '(^|/)(CLAUDE(\.local)?\.md$|\.claude/|\.codex/|\.gemini/|private/|transcripts/|conversations/)'; then
+      echo "refused: commit $c touches a private path" >&2; exit 1
+    fi
+    if git show --format= "$c" -- . ':(exclude).githooks/check-private.sh' ':(exclude).githooks/pre-push' \
+         | grep -n -E '^\+.*(/Users/[A-Za-z]|/home/[a-z]|~/Code/)|^\+session: '; then
+      echo "refused: commit $c adds a private marker" >&2; exit 1
+    fi
+  done
+done
+exec "$root/.githooks/check-private.sh" --all
