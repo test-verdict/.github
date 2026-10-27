@@ -231,9 +231,11 @@ what the measurements mean and stay with the maintainers. Gates and long runs ru
 4. Decided 2026-10-27: the zoo is too easy for calibration (the smallest available model scores above the
    calibration band on every arm), so S6 comes before S5, and S5 calibrates on the S6 tuning items. The Python
    subject is marshmallow 4.3.1; each item is built as a comprehension item and as an agentic task at once.
-5. Open 2026-10-27: whether the agentic layer (S8) should lead rather than follow the comprehension layer,
-   since an agent given a task and its real tool output is the measure the format exists for; comprehension
-   questions stay as the cheap diagnostic of why a format helps or fails.
+5. Decided 2026-10-27: the benchmark measures whether the output is understood, not whether the agent can fix
+   the bug; fixing depends mostly on the model's coding skill and would bury the format's effect in noise.
+   Mutation items therefore score only what the output can show; the mutant's location stays the ground truth
+   for grouping failures by root cause. The agentic layer (S8) is deferred, not cancelled: it returns only
+   if the comprehension results are borderline and the downstream effect must be seen.
 6. Decided 2026-10-27: an early decision on whether the project is worth continuing, taken after S6 and
    a small agentic pilot, before any format tuning. The zoo results do not answer it: the benchmark design
    predicted no advantage on a single failure, and the zoo is mostly single failures. The hypothesis worth
@@ -243,8 +245,7 @@ what the measurements mean and stay with the maintainers. Gates and long runs ru
    zoo).
    - **Continue** when, on the S6 tuning items with a calibrated model, Verdict leads the best of tuned,
      receptor and markdown by at least 5 points in the hard strata (more than 20 failing tests, several
-     causes, or a clipped presentation) with no more false successes, **or** the agentic pilot shows a higher
-     solved rate or clearly fewer tokens to a solution than tuned.
-   - **Stop building the library** when neither holds: publish the benchmark and its findings (which output
+     causes, or a clipped presentation) with no more false successes.
+   - **Stop building the library** when it does not: publish the benchmark and its findings (which output
      settings help agents, which reporters do not) as the result.
    - Anything between is a redesign trigger under section 4, not a reason to continue unchanged.
