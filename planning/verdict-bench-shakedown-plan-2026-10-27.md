@@ -234,6 +234,10 @@ alone cannot add up unseen.
   of it, so green and near-green runs (the unmutated suite, one failure among 1,192) are added to the token
   measure. Activation without configuration when an agent runs the tests (as Vitest's `minimal` reporter
   does) is recorded as a product requirement; agents do not reliably follow an instruction to pick a reporter.
+- Decided 2026-10-28, a principle: a code fence holding error text carries no language tag (the markdown
+  plugin tags it `python`). The saving is about one token per failure and no mechanism makes a wrong tag
+  help; it is not tested alone, and the final combination's test against plain markdown covers it. The
+  baseline in every A/B test stays the plugin's real output.
 - Further features come from where models answer wrongly, one at a time.
 
 Every test is recorded in a change log: the feature, the reason, the A/B score and token deltas per stratum,
