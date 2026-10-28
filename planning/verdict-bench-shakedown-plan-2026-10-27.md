@@ -198,15 +198,18 @@ recorded; nobody's plugin is rewritten. The hand-tuned arm stays the bar of the 
 
 **A feature is kept** when, paired by item and sample against the current baseline, either
 1. the A/B score rises by at least **3 points** and the token cost rises by at most 10%, or
-2. the token cost falls by at least **10%** and the A/B score falls by at most 1 point,
+2. the token cost falls by at least **10%**, the A/B score falls by at most 1 point, and the low end of its
+   95% interval stays at or above **−3 points** (decided 2026-10-28: a cut must not plausibly cost more, or
+   several cuts that each pass on luck would add up),
 
 with the guard intact and no rise in false successes. Whether 3 points is above noise is established by the
 A/A run of round 0; if it is not, items or samples are added until it is, never the bar lowered. A kept feature
 is confirmed on fresh tuning items before it is combined.
 
 **Combination.** Kept features are combined; the hypothesis is that the combination beats each feature
-alone, on the A/B score at no more tokens than the sum of their costs. It is tested like a feature, against
-the best single feature.
+alone, on the A/B score at no more tokens than the sum of their costs. It is tested like a feature twice:
+against the best single feature, and against the plain markdown baseline, so that losses which each passed
+alone cannot add up unseen.
 
 **Rounds.**
 - **Round 0, the bench itself.** Fix the Q6 scorer (every arm scores 0, so a fault is likely); harder items
