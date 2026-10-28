@@ -220,6 +220,10 @@ the best single feature.
   grouping summary above the sections, tests that fail at the same place, never called a root cause (Q5,
   Q3); F5 identical tracebacks shown once with their test count (tokens); F6 the same content without Markdown
   syntax (whether the headings and fences help, or only the content).
+- Decided 2026-10-28: the membership question (which tests belong to which bug) is scored only on items with
+  at most 20 failing tests. On larger items models listed a sample of the right group, so the question
+  measured how much they were willing to write, not whether they understood. Giving the model a compact
+  name for a group (a file, class or selector standing for all its tests) is tested as a feature of its own.
 - Further features come from where models answer wrongly, one at a time.
 
 Every test is recorded in a change log: the feature, the reason, the A/B score and token deltas per stratum,
