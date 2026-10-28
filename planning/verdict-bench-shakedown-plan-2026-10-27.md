@@ -173,50 +173,58 @@ Each step ends with a check that can fail. A step that fails its check is fixed 
 
 ## 4. Format refinement protocol
 
-Decided 2026-10-27. One Verdict design is refined by small paired A/B rounds. A different design is tried only
-when the evidence calls for it. The protection against our own assumptions (for example, that a
-Markdown-shaped report reads best) is the set of competitor arms, which are genuinely different designs:
-plain text (receptor), Markdown-heavy (markdown-report), JSON (CTRF) and trimmed framework output (tuned).
-The protocol keeps the benchmark able to say that Verdict is the wrong design.
+Decided 2026-10-28, replacing the protocol of 2026-10-27 (refine one Verdict design from the top down).
 
-**Direction check.** S4, then every versioned run, compares Verdict cold with all competitor arms. The
-**redesign trigger**, fixed before S4 runs: the best competitor's comprehension score exceeds Verdict's by
-more than 10 percentage points, or Verdict's false-success rate is higher than any competitor's. A false-success
-firing on one sample can rest on a single stray answer, so it is first confirmed by rerunning those answers
-three times; the report names them. The rule itself is not relaxed: a false success is the costliest
-misreading. When it fires, tuning stops. The items where the competitor wins are read side by side, the feature that explains
-the gap is named, and either it is adopted as a round or a redesign is proposed to the maintainers. On the
-twenty zoo items the check is directional only. From S7 on it is evaluated on the tuning set of the mutation
-corpus.
+**Why it changed.** On the tuning items of the mutation corpus the Verdict design as a whole did not beat
+the free hand-tuned output, and on the hard strata it lost (Haiku 4.5, shakedown): its groups share a crash
+site, the report calls each group a root cause, and one bug failing 37 tests at 37 assertions read as 37
+causes (cause count 4% against 70% to 89% for the plain arms). The design is therefore not refined as a whole.
+The format is **built up feature by feature** from the best plain baseline, and every feature earns its place
+in an isolated A/B test.
 
-**The zoo leans towards Verdict.** It was written alongside the format and contains the cases the format was
-built for (a setup cascade, a forged verdict line). The evidence is therefore asymmetric: a Verdict loss on
-the zoo is strong evidence against the design, while a Verdict win is a first sign only. Every direction
-check reports the comprehension score twice: with all questions, and without the questions that reward
-something only some arms print (Q7 rerun, which several arms leave to the reader). A lead that exists only
-in the full score is reported as such. The fair test is the mutation corpus, which nobody selects by hand.
+**Baseline.** The markdown reporter's output (pytest-markdown-report): best on the tuning items (87.8%
+against 87.4% for tuned), smaller than tuned, summary first, one section per failing test with short
+tracebacks, no claims about causes. Features are edits to that output built from data the run already
+recorded; nobody's plugin is rewritten. The hand-tuned arm stays the bar of the go or stop decision (section
+6, question 6): whatever is built must beat what any pytest user gets for free.
 
-**Rounds.** Each round makes one change, measured paired on the same items, models and truncation
-conditions against the current format.
-1. The static layer runs first. A change that loses fact coverage, or the survival of the verdict line or
-   index, is rejected without a model run.
-2. Comprehension on the tuning set. The change is **kept** when the comprehension score improves or holds
-   and the false-success rate does not rise. Between two outcomes that are equal within noise, the one
-   with fewer tokens wins.
-3. Every round is recorded in a change log: the change, the reason it was tried, the static and
-   comprehension deltas, and the decision.
+**Two measures per A/B test, both primary.**
+- **A/B score**: the comprehension score over the questions that discriminate (Q3 cause count, Q4
+  localisation, Q5 membership, Q6 evidence, Q7 rerun). Q1, Q2 and Q9 are at or near 100% on every arm, carry
+  45% of the full score's weight and would hide differences; they become a **guard**: a feature must not
+  lower them.
+- **Token cost**: tokens of the report per item (o200k; Anthropic's count where available), as presented,
+  per stratum.
 
-**Order of rounds.**
-1. **Ablations first.** Each existing part (grouping, index, verdict word, decisive frame, rerun line, clip
-   notice) is removed once. A part whose removal does not lower comprehension is dropped, and its tokens are
-   saved. This addresses the token cost before anything is added.
-2. **Changes chosen by errors.** The next candidate comes from where models answer wrongly (question type ×
-   scenario × arm), not from a list written in advance.
-3. **Additions last**, each as its own A/B round: delta, hint line, pattern line, a shorter output block.
+**A feature is kept** when, paired by item and sample against the current baseline, either
+1. the A/B score rises by at least **3 points** and the token cost rises by at most 10%, or
+2. the token cost falls by at least **10%** and the A/B score falls by at most 1 point,
 
-**What a small sample can say.** With twenty items a difference of two or three items is noise: the zoo
-detects a broken format but cannot choose between two good ones. Kept-or-dropped decisions are taken on the
-mutation corpus (S6) and later. Earlier results show direction only and are labelled so.
+with the guard intact and no rise in false successes. Whether 3 points is above noise is established by the
+A/A run of round 0; if it is not, items or samples are added until it is, never the bar lowered. A kept feature
+is confirmed on fresh tuning items before it is combined.
+
+**Combination.** Kept features are combined; the hypothesis is that the combination beats each feature
+alone, on the A/B score at no more tokens than the sum of their costs. It is tested like a feature, against
+the best single feature.
+
+**Rounds.**
+- **Round 0, the bench itself.** Fix the Q6 scorer (every arm scores 0, so a fault is likely); harder items
+  (three to five mutants per run with overlapping failing tests allowed, runs mixing failures with skips,
+  expected failures and a collection error, and about 150 tuning items in all); the A/B score and token cost
+  in the report; truncation at the agent's real limit (head and tail, 30,000 characters) as a standing
+  condition beside the full output; an A/A run of the baseline to measure noise.
+- **Features, one A/B test each** (target question in brackets, reported to explain a result, not to decide it):
+  F1 a rerun line with the failing test ids (Q7); F2 the shared code location, the deepest project-code line
+  that the failing tests' tracebacks pass through, named once with its test count (Q4, Q3); F3 a neutral
+  grouping summary above the sections, tests that fail at the same place, never called a root cause (Q5,
+  Q3); F5 identical tracebacks shown once with their test count (tokens); F6 the same content without Markdown
+  syntax (whether the headings and fences help, or only the content).
+- Further features come from where models answer wrongly, one at a time.
+
+Every test is recorded in a change log: the feature, the reason, the A/B score and token deltas per stratum,
+the guard, and the decision. All of this is shakedown until the evaluation split is opened in a
+pre-registered, versioned run (S9).
 
 ## 5. Who does the work
 
