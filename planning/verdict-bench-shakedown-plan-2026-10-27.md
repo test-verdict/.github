@@ -261,3 +261,7 @@ what the measurements mean and stay with the maintainers. Gates and long runs ru
    - **Stop building the library** when it does not: publish the benchmark and its findings (which output
      settings help agents, which reporters do not) as the result.
    - Anything between is a redesign trigger under section 4, not a reason to continue unchanged.
+7. Open 2026-10-28, a note for later: if the feature rounds keep a Markdown-shaped report on top, the product
+   may become that format, carried to frameworks whose agents have no such reporter today (JUnit and the
+   other JVM runners first, as the design record already plans). Whether those frameworks lack one is to be
+   verified against their ecosystems before it shapes any plan; nothing changes in the rounds meanwhile.
