@@ -224,6 +224,13 @@ the best single feature.
   at most 20 failing tests. On larger items models listed a sample of the right group, so the question
   measured how much they were willing to write, not whether they understood. Giving the model a compact
   name for a group (a file, class or selector standing for all its tests) is tested as a feature of its own.
+- Decided 2026-10-28, a principle rather than a test: passing tests get no detail, only their count in one
+  summary line with the failing count. The markdown baseline already does this. On a failing pytest run the
+  passing tests' progress output is about 3% of the plain output (436 of 13,880 tokens on average), so the
+  large savings on failing runs lie in the failure details; on a green run the progress output is nearly all
+  of it, so green and near-green runs (the unmutated suite, one failure among 1,192) are added to the token
+  measure. Activation without configuration when an agent runs the tests (as Vitest's `minimal` reporter
+  does) is recorded as a product requirement; agents do not reliably follow an instruction to pick a reporter.
 - Further features come from where models answer wrongly, one at a time.
 
 Every test is recorded in a change log: the feature, the reason, the A/B score and token deltas per stratum,
