@@ -224,6 +224,14 @@ up unseen, and a direct-answer feature cannot carry the others. The weights ques
 settles whether the understanding questions (cause count, localisation, expected and actual) and the
 delivery questions (rerun command, membership) become two reported scores.
 
+**The final answer is against the native output** (decided 2026-10-29). The test against plain markdown says
+which edits help; it cannot say whether any of it matters. The last comparison of the tuning rounds is the
+final combination against `default`, pytest's own output as an agent sees it today without any reporter
+installed, and against `tuned`, the output a user gets from flags alone: the same two measures, the same
+bar, paired on the same items. A combination that does not beat the native output on understanding or on
+cost is not a product, however it fares against markdown. The sealed evaluation run (S9) repeats that
+comparison on the evaluation split.
+
 **Rounds.**
 - **Round 0, the bench itself.** Fix the Q6 scorer (every arm scores 0, so a fault is likely); harder items
   (three to five mutants per run with overlapping failing tests allowed, runs mixing failures with skips,
