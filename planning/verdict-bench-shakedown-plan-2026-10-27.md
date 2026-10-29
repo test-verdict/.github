@@ -17,6 +17,7 @@ decisions taken today:
 | S2, reference renderer and static layer | **done** | The reference renderer turns the S1 evidence into the Verdict report and equals twenty golden reports written by hand before it existed; six ablation switches and an optional hint line. The static layer measures all six arms: tokens (o200k, cl100k), fact coverage, survival under the five truncation conditions, noise share, injection, determinism; the first table is recorded as shakedown. Every exit check passes: full coverage apart from facts elided by design (test ids behind `+N more`), the verdict line and index intact under every truncation, no forged line from `hostile-output`, byte-identical renders in any record order. Ground truth corrected first: a fixture failing in setup or teardown is a failing run, not an error. Specification and notes in `verdict-bench/docs/s2-renderer.md`. Next: S3, questions, answer schema and scorer. |
 | S3, questions, answer schema and scorer | **done** | Question text and answer schema fixed for every arm before any tuning. Ground truth derived from the scenario and the evidence; the next-action question uses a stated rule with accepted sets, because most zoo failures do not show whether the test or the code is wrong. The rerun command is executed without a shell, against a fixed option set, in a copy whose pytest cache holds the last failures. Exit checks pass: the ideal answer scores full marks on all 720 presentations, an empty answer scores zero, sixteen hand-made wrong answers score as expected. Known weakness: short expected and actual values match almost any text. Specification in `verdict-bench/docs/s3-questions.md`. Next: S4, comprehension runner. |
 | S4, comprehension runner and harness shakedown | **done** | One tool-free call per presentation, an identical prompt for every arm apart from the report, one row per planned call whatever its outcome, resumable runs, single-row reruns, and rescoring of stored answers after a scoring correction. The first real calls found two faults in the lane (a schema key the CLI refuses; structured-output turns counted as tool calls), fixed before the run. The 132-call shakedown on the smallest Claude model answered and parsed every call, with no rate limits. The direction check was **not evaluable**: the model scores near the ceiling on every arm, so the zoo is too easy to separate formats. Every arm missed the same items, which exposed three question rules, corrected and rescored without new calls. Specification in `verdict-bench/docs/s4-comprehension.md`. Next: harder items before calibration (section 6, question 4). |
+| S7, first format-tuning rounds | **in progress** | Protocol in section 4: markdown baseline, features one at a time, moving baseline. Shakedown results (never cited): the A/A noise floor is about 2.5 points; identical tracebacks shown once (`md-dedupe`) kept at −22% tokens; one line per failure (`md-line`) dropped at −16 points, the model guesses the source file from the test file's name once the frames are gone; the rerun line (`md-rerun`) passes the bar on the rerun-command question alone (interim). Still running or awaiting fill passes after a network gap: shared location, one line plus its frame, places, plain text. Change log in `verdict-bench/docs/s7-changelog.md`. |
 | S6, mutation corpus pilot (Python) | **done**, taken before S5 (section 6, question 4) | Subject marshmallow 4.3.1 (MIT), 1,192 tests in about a second; our own one-line mutation operators. 159 items from 800 sampled mutants: 90 single, 60 with two or three causes, 9 cascades from a fixture or helper (50 wanted; the subject has few fixtures that fail five tests or more, shortfall reported, not padded); 48 tuning, 111 sealed. 48 items have more than 20 failing tests. Every item scores only what the output can show; captures stored compressed (23 MB), byte-identical on recapture. First static findings, shakedown: Verdict's index does not survive the tightest cuts on large reports, and Verdict is about three times the size of receptor on this corpus. The hand check of 20 tuning items found every cause location sane. CTRF is left out of model runs on this corpus: listing every passing test, it exceeds a small model's context. Specification and notes in `verdict-bench/docs/s6-mutation.md`. |
 
 ## 1. Why lesser models, and the three guards that keep it honest
@@ -206,10 +207,22 @@ with the guard intact and no rise in false successes. Whether 3 points is above 
 A/A run of round 0; if it is not, items or samples are added until it is, never the bar lowered. A kept feature
 is confirmed on fresh tuning items before it is combined.
 
-**Combination.** Kept features are combined; the hypothesis is that the combination beats each feature
-alone, on the A/B score at no more tokens than the sum of their costs. It is tested like a feature twice:
-against the best single feature, and against the plain markdown baseline, so that losses which each passed
-alone cannot add up unseen.
+**The baseline moves** (decided 2026-10-29). A kept feature joins the baseline: the next feature is tested
+against the markdown output plus every feature kept so far, never against plain markdown alone. Two things
+follow. A feature whose gain is already delivered by a kept one (repetition that dedupe has removed, a
+location the rerun line already names) shows no gain and is not kept. And a feature whose points come from a
+question whose answer it prints outright (the rerun line and the rerun-command question; a group name and the
+membership question) carries those points in both arms of every later comparison, so it cannot lift a
+feature tested after it. Such a feature is recorded in the change log as **kept on a direct-answer
+question**, with the per-question deltas, so the reader sees where the gain comes from. The single-feature
+results against plain markdown stay in the change log as the record of each feature alone.
+
+**Combination.** The final combination, the baseline after the last kept feature, is tested against plain
+markdown. The report shows the A/B score twice: with every question, the agent-facing result, and without
+the direct-answer questions; the bar applies to the second. Losses that each feature passed alone cannot add
+up unseen, and a direct-answer feature cannot carry the others. The weights question (section 6, question 3)
+settles whether the understanding questions (cause count, localisation, expected and actual) and the
+delivery questions (rerun command, membership) become two reported scores.
 
 **Rounds.**
 - **Round 0, the bench itself.** Fix the Q6 scorer (every arm scores 0, so a fault is likely); harder items
@@ -253,7 +266,10 @@ what the measurements mean and stay with the maintainers. Gates and long runs ru
 
 1. Answered 2026-10-27: Codex on Pro, Gemini on the free tier; lanes in section 1.
 2. Answered 2026-10-27: `verdict-bench` is written from scratch.
-3. The comprehension-score weights from the benchmark design, before S9 freezes them.
+3. The comprehension-score weights from the benchmark design, before S9 freezes them. Added 2026-10-29: the
+   rerun-line feature scored +31 points on the rerun-command question and nothing elsewhere, because the line
+   prints that question's answer. Proposed: two reported scores, understanding (cause count, localisation,
+   expected and actual) and delivery (rerun command, membership); features are decided on the first.
 4. Decided 2026-10-27: the zoo is too easy for calibration (the smallest available model scores above the
    calibration band on every arm), so S6 comes before S5, and S5 calibrates on the S6 tuning items. The Python
    subject is marshmallow 4.3.1; each item is built as a comprehension item and as an agentic task at once.
