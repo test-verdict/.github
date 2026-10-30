@@ -232,6 +232,14 @@ bar, paired on the same items. A combination that does not beat the native outpu
 cost is not a product, however it fares against markdown. The sealed evaluation run (S9) repeats that
 comparison on the evaluation split.
 
+**Two final tests, then Java** (decided 2026-10-30). The second final test is the combination against
+`receptor`, pytest-receptor's `--receptor=llm` output: an agent-oriented reporter that already exists for
+Python, so a combination that does not beat it offers Python users nothing they cannot install today. The
+two tests are paired on the same items, under the same bar. When both are done, the work moves to Java: the
+JVM reporter's output against the plain JUnit output under Gradle, on a Java zoo and mutation corpus built as
+S1 and S6 describe. Java has no agent-oriented reporter to compare against, so the plain output is the only
+bar there, and the Python result says which features the JVM reporter carries into that test.
+
 **Rounds.**
 - **Round 0, the bench itself.** Fix the Q6 scorer (every arm scores 0, so a fault is likely); harder items
   (three to five mutants per run with overlapping failing tests allowed, runs mixing failures with skips,
