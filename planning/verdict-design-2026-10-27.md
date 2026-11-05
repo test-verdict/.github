@@ -186,6 +186,11 @@ Avoid:
 
 ## 4. The Verdict format, version 1
 
+> **Superseded for the console format (decided 2026-11-05).** The grouped design below lost in the Python
+> tuning rounds: groups that share a crash site were read as root causes. Version 1 is the plain
+> per-failure report of `verdict-java-plan-2026-11-05.md`, section 2. Activation (4.5) and the sidecar files
+> (4.4) still hold; grouping, the root-cause count and the index wait for a measurement.
+
 ### 4.1 Shape
 
 Markdown-compatible plain text. Structural characters are ASCII only. Six parts, in this order:
@@ -595,6 +600,8 @@ specification and the corpus so framework maintainers can adopt the format freel
 - Publish the specification under the name Verdict; `verdict/1` is the format marker.
 
 ### Phase 1: Java and Kotlin (reference implementation)
+
+> The order of work for Java is in `verdict-java-plan-2026-11-05.md` (decided 2026-11-05).
 
 1. JUnit Platform listener (collector, CTRF sidecar with groups).
 2. Gradle plugin (renderer, multi-module merge, activation from environment, `--tests` rerun).
