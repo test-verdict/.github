@@ -48,7 +48,12 @@ crashes" contract. When a defect is found, pin the class of bug with a property,
 ## Rules every reporter follows
 
 - **It renders data, it never runs user code.** A reporter shows what the test framework already produced. It
-  does not call methods on user objects to get more detail.
+  does not call methods on user objects to get more detail. The one exception is a failure's exceptions, which
+  the framework itself prints with `Throwable.printStackTrace`: a collector may call exactly what that calls
+  (`toString`, `getStackTrace`, `getCause`, `getSuppressed`), at most once per exception, on the thread that
+  delivered the failure, with every call guarded against throwing. Nothing else is called on user objects: not
+  the expected and actual values of an assertion, not accessors on an exception. No watchdog thread: a call that
+  hangs would already hang the framework's own reporting, and a watchdog only leaves a stuck thread behind.
 - **Test output is untrusted.** It cannot forge a verdict line, a heading or an index line; control characters
   are stripped; credential-shaped values are redacted.
 - **A reporter failure never hides a test failure.** It falls back to the framework's own output and keeps the
