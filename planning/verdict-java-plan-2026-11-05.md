@@ -9,9 +9,9 @@ holds: the per-framework analysis (section 6.1), the safety rules, activation, t
 | Step | State | Notes |
 |---|---|---|
 | J0, this plan and the format draft | **done** | Decided 2026-11-05: the library is built first, from the format the Python tuning rounds produced, and benchmarked from its real output. |
-| J1, specification and Java zoo | not started | `verdict-spec` |
-| J2, core renderer | not started | `verdict-jvm` |
-| J3, JUnit Platform listener | not started | `verdict-junit` |
+| J1, specification and Java zoo | **done** | `verdict-spec`: SPEC.md, twenty zoo scenarios, hand-written goldens, hostile corpus. |
+| J2, core renderer | **done** | `verdict-jvm`: reproduces the twenty goldens byte for byte from hand-built evidence; no runtime dependency. |
+| J3, JUnit Platform listener | **done** | `verdict-junit`: the zoo run with the listener reproduces every golden; exit codes equal with and without it; JUnit 5 and 6. |
 | J4, Gradle plugin | not started | `verdict-gradle` |
 | J5, Java benchmark | not started | `verdict-bench`, corpus `java` |
 | J6, Maven extension | later | `verdict-maven` |
