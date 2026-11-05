@@ -12,8 +12,8 @@ holds: the per-framework analysis (section 6.1), the safety rules, activation, t
 | J1, specification and Java zoo | **done** | `verdict-spec`: SPEC.md, twenty zoo scenarios, hand-written goldens, hostile corpus. |
 | J2, core renderer | **done** | `verdict-jvm`: reproduces the twenty goldens byte for byte from hand-built evidence; no runtime dependency. |
 | J3, JUnit Platform listener | **done** | `verdict-junit`: the zoo run with the listener reproduces every golden; exit codes equal with and without it; JUnit 5 and 6. |
-| J4, Gradle plugin | not started | `verdict-gradle` |
-| J5, Java benchmark | not started | `verdict-bench`, corpus `java` |
+| J4, Gradle plugin | **done** | `verdict-gradle`: settings plugin; the zoo under `./gradlew test` prints every golden under an agent environment and Gradle's own output without one; exit codes equal on every scenario; a reporter failure falls back to Gradle's own failure details. |
+| J5, Java benchmark | in progress | `verdict-bench`, corpus `java`: subject Joda-Money 2.0.3 (Apache 2.0), chosen 2026-11-05; every one of its 1,893 mutants run under Gradle (shakedown). Items, capture and scoring next. |
 | J6, Maven extension | later | `verdict-maven` |
 
 ## 1. Decisions of 2026-11-05
